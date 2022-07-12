@@ -111,7 +111,17 @@ export async function saveCardPassword(card, password: string) {
     await cardRepository.update(card.id, card);
 }
 
-export async function updateBlockCard(card) {
-    card.isBlocked = true;
+export async function updateBlockedCard(card, status: Boolean) {
+    card.isBlocked = status;
     await cardRepository.update(card.id, card);
+}
+
+export async function permissionUnlockCard(card) {
+    if (!card.isBlocked) throw { type: "already unlocked" };
+
+    const validList = card.expirationDate.split("/");
+    const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
+    const today = dayjs(Date.now());
+
+    if (validCard.diff(today) < 0) throw "expired";
 }

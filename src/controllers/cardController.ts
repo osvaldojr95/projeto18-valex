@@ -9,7 +9,8 @@ import {
     permissionActivateCard,
     permissionBlockCard,
     verifyCardPassword,
-    updateBlockCard,
+    updateBlockedCard,
+    permissionUnlockCard,
 } from "../services/cardServices.js";
 
 export async function createCard(req: Request, res: Response) {
@@ -34,6 +35,15 @@ export async function blockCard(req: Request, res: Response) {
     const card = await findCardById(id);
     await permissionBlockCard(card);
     await verifyCardPassword(card, password);
-    await updateBlockCard(card);
+    await updateBlockedCard(card, true);
+    res.sendStatus(200);
+}
+
+export async function unlockCard(req: Request, res: Response) {
+    const { id, password } = res.locals.body;
+    const card = await findCardById(id);
+    await permissionUnlockCard(card);
+    await verifyCardPassword(card, password);
+    await updateBlockedCard(card, false);
     res.sendStatus(200);
 }
