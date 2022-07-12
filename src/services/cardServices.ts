@@ -10,8 +10,7 @@ import {
     CardInsertData,
     TransactionTypes,
 } from "../Interfaces/cardInterface.js";
-import { RechargeInsertData } from "../Interfaces/rechargeInterface.js";
-import "../config.js";
+import paymentRepository from "../repositories/paymentRepository.js";
 import rechargeRepository from "../repositories/rechargeRepository.js";
 
 export async function insertCard(type: TransactionTypes, employee: Employee) {
@@ -129,21 +128,27 @@ export async function permissionUnlockCard(card: Card) {
     if (validCard.diff(today) < 0) throw "expired";
 }
 
-export async function permissionRechargeCard(card: Card) {
-    if (!card.password) throw { type: "card is not activated" };
+export async function getBalanceTransactionCard(card: Card) {
+    const payments = await paymentRepository.findByCardId(card.id);
+    const recharges = await rechargeRepository.findByCardId(card.id);
 
-    const validList = card.expirationDate.split("/");
-    const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
-    const today = dayjs(Date.now());
+    let total = 0;
 
-    if (validCard.diff(today) < 0) throw "expired";
+    payments.forEach((item) => {
+        total -= item.amount;
+    });
+    recharges.forEach((item) => {
+        total += item.amount;
+    });
+
+    return {
+        balance: total,
+        transactions: payments,
+        recharges: recharges,
+    };
 }
 
-export async function updateRechargeCard(card: Card, value: number) {
-    const recharge: RechargeInsertData = {
-        cardId: card.id,
-        amount: value,
-    };
-
-    await rechargeRepository.insert(recharge);
+export async function verifyBalanceCard(card: Card, value) {
+    const balance = await getBalanceTransactionCard(card);
+    if (balance.balance < value) throw { type: "insufficient funds" };
 }

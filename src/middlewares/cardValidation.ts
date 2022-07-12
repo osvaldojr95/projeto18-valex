@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import createCard from "../schemas/createCardSchema.js";
 import activateCard from "../schemas/activateCardSchema.js";
 import blockCard from "../schemas/blockCardSchema.js";
-import rechargeCard from "../schemas/rechargeCardSchema.js";
 
 export function createCardValidation(
     req: Request,
@@ -50,25 +49,6 @@ export function blockCardValidation(
 
     const validation = blockCard.validate(
         { id: +id, password },
-        { abortEarly: false }
-    );
-    if (validation.error) throw { type: "422" };
-
-    res.locals.body = validation.value;
-    next();
-}
-
-export function rechargeCardValidation(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
-    const { id } = req.params;
-    const { value } = req.body;
-    const apiKey = req.header("x-api-key");
-
-    const validation = rechargeCard.validate(
-        { id: +id, value, apiKey },
         { abortEarly: false }
     );
     if (validation.error) throw { type: "422" };
