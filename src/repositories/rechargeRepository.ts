@@ -1,27 +1,30 @@
-import { connection } from "../database.js";
+import connection from "../database.js";
+import {
+    Recharge,
+    RechargeInsertData,
+} from "../Interfaces/rechargeRepository.js";
 
-export interface Recharge {
-  id: number;
-  cardId: number;
-  timestamp: Date;
-  amount: number;
-}
-export type RechargeInsertData = Omit<Recharge, "id" | "timestamp">;
+async function findByCardId(cardId: number) {
+    const result = await connection.query<Recharge, [number]>(
+        `SELECT * FROM recharges WHERE "cardId"=$1`,
+        [cardId]
+    );
 
-export async function findByCardId(cardId: number) {
-  const result = await connection.query<Recharge, [number]>(
-    `SELECT * FROM recharges WHERE "cardId"=$1`,
-    [cardId]
-  );
-
-  return result.rows;
+    return result.rows;
 }
 
-export async function insert(rechargeData: RechargeInsertData) {
-  const { cardId, amount } = rechargeData;
+async function insert(rechargeData: RechargeInsertData) {
+    const { cardId, amount } = rechargeData;
 
-  connection.query<any, [number, number]>(
-    `INSERT INTO recharges ("cardId", amount) VALUES ($1, $2)`,
-    [cardId, amount]
-  );
+    connection.query<any, [number, number]>(
+        `INSERT INTO recharges ("cardId", amount) VALUES ($1, $2)`,
+        [cardId, amount]
+    );
 }
+
+const rechargeRepository = {
+    findByCardId,
+    insert,
+};
+
+export default rechargeRepository;

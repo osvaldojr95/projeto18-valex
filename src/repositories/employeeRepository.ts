@@ -1,18 +1,17 @@
-import { connection } from "../database.js";
+import connection from "../database.js";
+import Employee from "../Interfaces/employeeInteface.js";
 
-export interface Employee {
-  id: number;
-  fullName: string;
-  cpf: string;
-  email: string;
-  companyId: number;
+async function findById(id: number) {
+    const result = await connection.query<Employee, [number]>(
+        "SELECT * FROM employees WHERE id=$1",
+        [id]
+    );
+
+    return result.rows[0];
 }
 
-export async function findById(id: number) {
-  const result = await connection.query<Employee, [number]>(
-    "SELECT * FROM employees WHERE id=$1",
-    [id]
-  );
+const employeeRepository = {
+    findById,
+};
 
-  return result.rows[0];
-}
+export default employeeRepository;

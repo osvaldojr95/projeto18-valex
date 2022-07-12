@@ -1,16 +1,17 @@
-import { connection } from "../database.js";
+import connection from "../database.js";
+import { Company } from "../Interfaces/companyInterface.js";
 
-export interface Company {
-  id: number;
-  name: string;
-  apiKey?: string;
+async function findByApiKey(apiKey: string) {
+    const result = await connection.query<Company, [string]>(
+        `SELECT * FROM companies WHERE "apiKey"=$1`,
+        [apiKey]
+    );
+
+    return result.rows[0];
 }
 
-export async function findByApiKey(apiKey: string) {
-  const result = await connection.query<Company, [string]>(
-    `SELECT * FROM companies WHERE "apiKey"=$1`,
-    [apiKey]
-  );
+const companyRepository = {
+    findByApiKey,
+};
 
-  return result.rows[0];
-}
+export default companyRepository;
