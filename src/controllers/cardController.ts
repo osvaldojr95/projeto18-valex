@@ -16,6 +16,7 @@ import {
     updateBlockedCard,
     permissionUnlockCard,
     verifyBalanceCard,
+    getBalanceTransactionCard,
 } from "../services/cardServices.js";
 import {
     permissionRechargeCard,
@@ -80,4 +81,11 @@ export async function payment(req: Request, res: Response) {
     await verifyBalanceCard(card, value);
     await insertPayment(card, idBusiness, value);
     res.sendStatus(200);
+}
+
+export async function getBalance(req: Request, res: Response) {
+    const { id } = res.locals.body;
+    const card = await findCardById(id);
+    const balance = await getBalanceTransactionCard(card);
+    res.send(balance);
 }
