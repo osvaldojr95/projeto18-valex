@@ -5,14 +5,14 @@ import "../config.js";
 import paymentRepository from "../repositories/paymentRepository.js";
 
 export async function permissionPayment(card: Card) {
-    if (!card.password) throw { type: "Card not activated" };
-    if (card.isBlocked) throw { type: "Card blocked" };
+    if (!card.password) throw { type: "unauthorized" };
+    if (card.isBlocked) throw { type: "unauthorized" };
 
     const validList = card.expirationDate.split("/");
     const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
     const today = dayjs(Date.now());
 
-    if (validCard.diff(today) < 0) throw "expired";
+    if (validCard.diff(today) < 0) throw "unauthorized";
 }
 
 export async function insertPayment(

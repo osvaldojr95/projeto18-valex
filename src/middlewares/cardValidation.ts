@@ -16,7 +16,7 @@ export function createCardValidation(
         { id, type, apiKey },
         { abortEarly: false }
     );
-    if (validation.error) throw { type: "422" };
+    if (validation.error) throw { type: "unprocessableEntity" };
 
     res.locals.body = validation.value;
     next();
@@ -34,7 +34,7 @@ export function activateCardValidation(
         { id: +id, cvc, password },
         { abortEarly: false }
     );
-    if (validation.error) throw { type: "422" };
+    if (validation.error) throw { type: "unprocessableEntity" };
 
     res.locals.body = validation.value;
     next();
@@ -52,7 +52,7 @@ export function blockCardValidation(
         { id: +id, password },
         { abortEarly: false }
     );
-    if (validation.error) throw { type: "422" };
+    if (validation.error) throw { type: "unprocessableEntity" };
 
     res.locals.body = validation.value;
     next();
@@ -73,7 +73,7 @@ export function balanceValidation(
         { id: +id },
         { abortEarly: false }
     );
-    if (validation.error) throw { type: "422" };
+    if (validation.error) throw { type: "unprocessableEntity" };
 
     res.locals.body = validation.value;
     next();

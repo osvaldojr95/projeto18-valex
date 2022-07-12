@@ -18,7 +18,7 @@ export async function insertCard(type: TransactionTypes, employee: Employee) {
         type,
         employee.id
     );
-    if (cardExist) throw { type: "conflit" };
+    if (cardExist) throw { type: "conflict" };
 
     const nameList = employee.fullName.toUpperCase().split(" ");
     let cardName = "";
@@ -70,39 +70,39 @@ export async function insertCard(type: TransactionTypes, employee: Employee) {
 
 export async function findCardById(id: number) {
     const card = await cardRepository.findById(id);
-    if (!card) throw { type: "404" };
+    if (!card) throw { type: "notFound" };
     return card;
 }
 
 export async function verifyCardCVC(card: Card, cvc: string) {
     const cryptr = new Cryptr(process.env.CRYPTR_SECRET_KEY);
     const cardCVC = cryptr.decrypt(card.securityCode);
-    if (cvc !== cardCVC) throw { type: "401" };
+    if (cvc !== cardCVC) throw { type: "unauthorized" };
 }
 
 export async function permissionActivateCard(card: Card) {
-    if (card.password) throw { type: "already activated" };
+    if (card.password) throw { type: "unauthorized" };
 
     const validList = card.expirationDate.split("/");
     const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
     const today = dayjs(Date.now());
 
-    if (validCard.diff(today) < 0) throw "expired";
+    if (validCard.diff(today) < 0) throw "unauthorized";
 }
 
 export async function permissionBlockCard(card: Card) {
-    if (card.isBlocked) throw { type: "already blocked" };
+    if (card.isBlocked) throw { type: "unauthorized" };
 
     const validList = card.expirationDate.split("/");
     const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
     const today = dayjs(Date.now());
 
-    if (validCard.diff(today) < 0) throw "expired";
+    if (validCard.diff(today) < 0) throw "unauthorized";
 }
 
 export async function verifyCardPassword(card: Card, password: string) {
     if (!bcrypt.compareSync(password, card.password))
-        throw { type: "Incorret Password" };
+        throw { type: "unauthorized" };
 }
 
 export async function saveCardPassword(card: Card, password: string) {
@@ -119,13 +119,13 @@ export async function updateBlockedCard(card: Card, status: boolean) {
 }
 
 export async function permissionUnlockCard(card: Card) {
-    if (!card.isBlocked) throw { type: "already unlocked" };
+    if (!card.isBlocked) throw { type: "unauthorized" };
 
     const validList = card.expirationDate.split("/");
     const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
     const today = dayjs(Date.now());
 
-    if (validCard.diff(today) < 0) throw "expired";
+    if (validCard.diff(today) < 0) throw "unauthorized";
 }
 
 export async function getBalanceTransactionCard(card: Card) {
@@ -150,5 +150,5 @@ export async function getBalanceTransactionCard(card: Card) {
 
 export async function verifyBalanceCard(card: Card, value) {
     const balance = await getBalanceTransactionCard(card);
-    if (balance.balance < value) throw { type: "insufficient funds" };
+    if (balance.balance < value) throw { type: "unauthorized" };
 }

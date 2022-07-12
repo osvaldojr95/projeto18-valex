@@ -13,7 +13,7 @@ export function paymentValidation(
         { id: +id, idBusiness, password, value },
         { abortEarly: false }
     );
-    if (validation.error) throw { type: "422" };
+    if (validation.error) throw { type: "unprocessableEntity" };
 
     res.locals.body = validation.value;
     next();
