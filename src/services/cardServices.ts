@@ -88,10 +88,30 @@ export async function permissionActivateCard(card) {
     if (validCard.diff(today) < 0) throw "expired";
 }
 
+export async function permissionBlockCard(card) {
+    if (card.isBlocked) throw { type: "already blocked" };
+
+    const validList = card.expirationDate.split("/");
+    const validCard = dayjs(`${validList[0]}/01/${validList[1]}`);
+    const today = dayjs(Date.now());
+
+    if (validCard.diff(today) < 0) throw "expired";
+}
+
+export async function verifyCardPassword(card, password: string) {
+    if (!bcrypt.compareSync(password, card.password))
+        throw { type: "Incorret Password" };
+}
+
 export async function saveCardPassword(card, password: string) {
     card.password = bcrypt.hashSync(password, +process.env.SALT);
     console.log(password);
     console.log(card.password);
 
+    await cardRepository.update(card.id, card);
+}
+
+export async function updateBlockCard(card) {
+    card.isBlocked = true;
     await cardRepository.update(card.id, card);
 }
