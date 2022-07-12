@@ -2,7 +2,7 @@ import connection from "../database.js";
 import {
     Recharge,
     RechargeInsertData,
-} from "../Interfaces/rechargeRepository.js";
+} from "../Interfaces/rechargeInterface.js";
 
 async function findByCardId(cardId: number) {
     const result = await connection.query<Recharge, [number]>(

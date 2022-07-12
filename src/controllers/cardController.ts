@@ -11,6 +11,8 @@ import {
     verifyCardPassword,
     updateBlockedCard,
     permissionUnlockCard,
+    permissionRechargeCard,
+    updateRechargeCard,
 } from "../services/cardServices.js";
 
 export async function createCard(req: Request, res: Response) {
@@ -45,5 +47,14 @@ export async function unlockCard(req: Request, res: Response) {
     await permissionUnlockCard(card);
     await verifyCardPassword(card, password);
     await updateBlockedCard(card, false);
+    res.sendStatus(200);
+}
+
+export async function rechargeCard(req: Request, res: Response) {
+    const { id, value, apiKey } = res.locals.body;
+    await findCompanyApiKey(apiKey);
+    const card = await findCardById(id);
+    await permissionRechargeCard(card);
+    await updateRechargeCard(card, value);
     res.sendStatus(200);
 }
